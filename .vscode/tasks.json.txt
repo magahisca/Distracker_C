@@ -1,0 +1,22 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build active file",
+      "type": "shell",
+      "command": "gcc",
+      "args": [
+        "-g",
+        "$test.c",
+        "-o",
+        "$d:/gitrepo/C training arc/build/Debug/outDebug"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": ["$gcc"],
+      "detail": "Generated task by Debugger."
+    }
+  ]
+}

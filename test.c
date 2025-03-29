@@ -10,6 +10,36 @@ void getEndTime(time_t *endTime){
     *endTime = time(NULL);
 }
 
+void writeToCsv (const char *windowTitle, double duration, time_t startTime, time_t endTime ){
+    FILE *file = fopen("activity_log.csv", "a");
+    if (file == NULL){
+        printf("Error opening file \n");
+        return;
+    }
+    struct tm *savedStartLocalTime = localtime(&startTime);
+    struct tm *savedEndLocalTime = localtime(&endTime);
+    //start time stats
+    int startSec = savedStartLocalTime->tm_sec;
+    int startMin = savedStartLocalTime->tm_min;
+    int startHr = savedStartLocalTime->tm_hour;
+    int startMonthDay = savedStartLocalTime->tm_mday;
+    int startMonth = savedStartLocalTime->tm_mon +1;
+    int startYr = savedStartLocalTime->tm_year + 1900;
+    //end time stats
+    int endSec = savedEndLocalTime->tm_sec;
+    int endMin = savedEndLocalTime->tm_min;
+    int endHr = savedEndLocalTime->tm_hour;
+    int endMonthDay =savedEndLocalTime->tm_mday;
+    int endMonth = savedEndLocalTime->tm_mon +1;
+    int endYr = savedEndLocalTime->tm_year + 1900;
+
+
+    fprintf(file,"\"%s\", %.2f, %.2d/%.2d/%.2d %.2d:%.2d:%.2d , %.2d/%.2d/%.2d %.2d:%.2d:%.2d\n", windowTitle,
+            duration,
+            startMonth,startMonthDay, startYr, startHr, startMin, startSec,
+            endMonth, endMonthDay, endYr, endHr, endMin, endSec);
+    fclose(file);
+}
 
 int main()
 {
@@ -17,6 +47,16 @@ char WindowTitle[256];
 char LastWindowTitle[256] = "";
 time_t startTime, endTime;
 getStartTime(&startTime);
+//initialize file reading
+FILE *file =  fopen("activity_log.csv", "r");
+if (file ==NULL){
+    file = fopen("activity_log.csv", "w");
+    fprintf(file, "Window Title, Duration (seconds), Start Time, End Time\n");
+    fclose(file);
+}else {
+    fclose(file);
+}
+
 //get readable time
 char *readableTime = ctime(&startTime);
 printf("%s", readableTime);
@@ -45,6 +85,7 @@ while (1){
             if (strlen(LastWindowTitle)>0){
                 double duration = difftime(endTime, startTime);
                 printf("You spent %.2f seconds on %s \n", duration, LastWindowTitle);
+                writeToCsv(LastWindowTitle, duration, startTime, endTime);
             }
             printf("End time for %s: %s",LastWindowTitle, endTimeReadable);
 
